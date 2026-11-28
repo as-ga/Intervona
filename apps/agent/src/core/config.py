@@ -59,7 +59,10 @@ class Settings(BaseSettings):
     # Select them with LLM_PROVIDER=ollama / STT_PROVIDER=whisper /
     # TTS_PROVIDER=kokoro; each needs its base URL, never an API key.
     ollama_base_url: str = "http://localhost:11434/v1"
-    ollama_model: str = "qwen3:8b"
+    # Keep local prep responsive on laptops. The 8B model is still available as
+    # an opt-in override, but CPU-only Docker inference took several minutes per
+    # stage on Apple Silicon.
+    ollama_model: str = "qwen3:1.7b"
     # Live tier, mirroring gemini_model / gemini_model_live: prep and scoring can
     # afford a bigger model because nobody is waiting mid-sentence; the turn loop
     # cannot. A smaller model here buys time-to-first-token on every turn.
@@ -112,6 +115,9 @@ class Settings(BaseSettings):
     # every turn would abort before the first token. Applied only when a local
     # provider is in play, so the cloud path keeps the SDK default.
     local_provider_timeout_sec: float = 20.0
+    # Bound local structured-output generations. Without a ceiling, a reasoning
+    # model can spend minutes producing scratchpad/output for a compact schema.
+    ollama_max_tokens: int = 1400
 
     # --- provider credentials (all optional) ---------------------------------
     gemini_api_key: str | None = None
@@ -160,7 +166,7 @@ class Settings(BaseSettings):
     # call hangs the prep graph forever and the session sticks in "prep" (the
     # node-level try/except only fires once the call RETURNS). The post pipeline
     # additionally has per-stage timeouts.
-    llm_call_timeout_sec: float = 300.0
+    llm_call_timeout_sec: float = 120.0
 
     # --- live: adaptive interview (off the turn-critical path) ----------------
     # When on, the background Director caches an advisory difficulty

@@ -357,6 +357,11 @@ def build_llm(settings):
             model=model,
             base_url=settings.ollama_base_url,
             api_key=settings.local_api_key,
+            # Ollama's OpenAI endpoint ignores ``think: false`` but honours
+            # reasoning_effort="none" for hybrid Qwen models. Without this the
+            # first greeting can disappear into minutes of hidden reasoning.
+            reasoning_effort="none",
+            max_completion_tokens=512,
         )
     if provider == "openai" and settings.openai_api_key:
         from livekit.plugins import openai
