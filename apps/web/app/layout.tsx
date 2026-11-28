@@ -1,17 +1,50 @@
-import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: "Intervona",
+export const metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://intervona.local",
+  ),
+  title: {
+    default: "Intervona — Practice the interview out loud",
+    template: "%s · Intervona",
+  },
   description:
-    "Intervona is a platform that helps you prepare for interviews by providing a wide range of interview questions and answers across various domains. It offers a comprehensive collection of questions, including technical, behavioral, and situational questions, to help you practice and improve your interview skills. With Intervona, you can enhance your confidence and increase your chances of success in job interviews.",
+    "Role-aware voice interview practice shaped by your CV and target job, with focused feedback after every session.",
+  applicationName: "Intervona",
+  openGraph: {
+    title: "Intervona — Practice the interview out loud",
+    description:
+      "Role-aware voice interview practice — rehearse the conversation before it matters.",
+    url: "/",
+    siteName: "Intervona",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Intervona — Practice the interview out loud",
+    description:
+      "Role-aware voice interview practice — rehearse the conversation before it matters.",
+  },
 };
 
-function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" className="font-sans">
+      <body className="font-sans">
+        <noscript>
+          <style
+            dangerouslySetInnerHTML={{
+              __html: ".reveal{opacity:1!important;transform:none!important}",
+            }}
+          />
+        </noscript>
+        {children}
+      </body>
     </html>
   );
 }
-export default RootLayout;
