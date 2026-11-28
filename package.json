@@ -10,7 +10,10 @@
   "scripts": {
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
-    "dev": "set -a && . ./.env && set +a && turbo run dev --parallel",
+    "dev": "bash scripts/dev.sh",
+    "docker:up": "bash scripts/docker-services.sh up",
+    "docker:stop": "bash scripts/docker-services.sh stop",
+    "docker:status": "bash scripts/docker-services.sh status",
     "lint": "pnpm --filter @intervona/agent run lint"
   },
   "devDependencies": {

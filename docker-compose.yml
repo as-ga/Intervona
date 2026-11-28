@@ -2,6 +2,7 @@ name: intervona
 
 services:
   ollama:
+    profiles: ["ollama"]
     image: ollama/ollama:latest
     environment:
       - OLLAMA_CONTEXT_LENGTH=16384
@@ -12,18 +13,23 @@ services:
     restart: unless-stopped
 
   ollama-pull:
+    profiles: ["ollama"]
     image: ollama/ollama:latest
     depends_on:
       - ollama
     environment:
       - OLLAMA_HOST=http://ollama:11434
-      - OLLAMA_MODEL=${OLLAMA_MODEL:-qwen3:8b}
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-qwen3:1.7b}
       - OLLAMA_MODEL_LIVE=${OLLAMA_MODEL_LIVE:-qwen3:1.7b}
     entrypoint: ["/bin/sh", "-c"]
-    command: ["ollama pull $${OLLAMA_MODEL:-qwen3:8b} && ollama pull $${OLLAMA_MODEL_LIVE:-qwen3:1.7b}"]
+    command:
+      [
+        "ollama pull $${OLLAMA_MODEL:-qwen3:1.7b} && ollama pull $${OLLAMA_MODEL_LIVE:-qwen3:1.7b}",
+      ]
     restart: "no"
 
   postgres:
+    profiles: ["postgres"]
     image: postgres:17-alpine
     environment:
       POSTGRES_DB: intervona
@@ -33,7 +39,6 @@ services:
       - "127.0.0.1:55432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./db/migrations:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U intervona -d intervona"]
       interval: 10s
@@ -41,6 +46,7 @@ services:
       retries: 10
 
   whisper:
+    profiles: ["whisper"]
     image: ghcr.io/speaches-ai/speaches:latest-cpu
     ports:
       - "127.0.0.1:8001:8000"
@@ -49,12 +55,14 @@ services:
     restart: unless-stopped
 
   kokoro:
+    profiles: ["kokoro"]
     image: ghcr.io/remsky/kokoro-fastapi-cpu:latest
     ports:
       - "127.0.0.1:8880:8880"
     restart: unless-stopped
 
   livekit:
+    profiles: ["livekit"]
     image: livekit/livekit-server:latest
     command: ["--dev", "--bind", "0.0.0.0"]
     ports:
