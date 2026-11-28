@@ -11,9 +11,9 @@ export async function GET(
   if (!decoded.startsWith("uploads/") || decoded.includes("..")) {
     return NextResponse.json({ error: "Invalid file key" }, { status: 400 });
   }
-  const root = process.cwd();
-  const target = path.resolve(root, decoded);
-  if (!target.startsWith(path.resolve(root, "uploads") + path.sep)) {
+  const uploadRoot = path.join(process.cwd(), "uploads");
+  const target = path.resolve(uploadRoot, decoded.slice("uploads/".length));
+  if (!target.startsWith(`${uploadRoot}${path.sep}`)) {
     return NextResponse.json({ error: "Invalid file key" }, { status: 400 });
   }
   try {

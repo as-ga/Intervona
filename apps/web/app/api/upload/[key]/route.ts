@@ -2,16 +2,19 @@ import { NextResponse } from "next/server";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-export async function PUT(request: Request, context: { params: Promise<{ key: string }> }) {
+export async function PUT(
+  request: Request,
+  context: { params: Promise<{ key: string }> },
+) {
   const { key } = await context.params;
   const decoded = decodeURIComponent(key);
   if (!decoded.startsWith("uploads/") || decoded.includes("..")) {
     return NextResponse.json({ error: "Invalid upload key" }, { status: 400 });
   }
   const content = Buffer.from(await request.arrayBuffer());
-  const root = process.cwd();
-  const target = path.resolve(root, decoded);
-  if (!target.startsWith(path.resolve(root, "uploads") + path.sep)) {
+  const uploadRoot = path.join(process.cwd(), "uploads");
+  const target = path.resolve(uploadRoot, decoded.slice("uploads/".length));
+  if (!target.startsWith(`${uploadRoot}${path.sep}`)) {
     return NextResponse.json({ error: "Invalid upload key" }, { status: 400 });
   }
   await mkdir(path.dirname(target), { recursive: true });
